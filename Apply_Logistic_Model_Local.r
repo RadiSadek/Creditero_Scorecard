@@ -32,8 +32,8 @@ con <- dbConnect(MySQL(), user=db_user, password=db_password,
 
 
 # Define work directory
-main_dir <- paste("C:\\Users\\nlangov\\Documents\\Spain\\Scoring\\",
-                  "Applied_model_Creditero\\",sep = "")
+main_dir <- paste("\\\\192.168.2.30\\Analyses\\Shared\\Scorecards\\Spain\\",
+                  "Creditero_Scorecard\\",sep = "")
 
 
 # Read argument of ID
