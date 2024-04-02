@@ -31,8 +31,8 @@ con <- dbConnect(MySQL(), user=db_user, password=db_password,
 
 
 # Define work directory
-main_dir <- paste("C:\\Users\\nlangov\\Documents\\Spain\\Scoring\\",
-                  "Applied_model_Creditero\\",sep = "")
+main_dir <- paste("\\\\192.168.2.30\\Analyses\\Shared\\Scorecards\\Spain\\",
+                  "Creditero_Scorecard\\",sep = "")
 
 
 # Read argument of ID
@@ -57,19 +57,19 @@ setwd(main_dir)
 
 
 # Load other r files
-source(paste(main_dir,"Spain_scorecard\\Additional_Restrictions.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Create_Bins.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Cutoffs.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Generate_Scoring_Table.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Join_Bank_Report_Application.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Read_Bank_Aggs.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\SQL_Queries.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Useful_Functions.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Generate_Behavioral_Criteria.r", sep=""))
+source(paste(main_dir,"Additional_Restrictions.r", sep=""))
+source(paste(main_dir,"Create_Bins.r", sep=""))
+source(paste(main_dir,"Cutoffs.r", sep=""))
+source(paste(main_dir,"Generate_Scoring_Table.r", sep=""))
+source(paste(main_dir,"Join_Bank_Report_Application.r", sep=""))
+source(paste(main_dir,"Read_Bank_Aggs.r", sep=""))
+source(paste(main_dir,"SQL_Queries.r", sep=""))
+source(paste(main_dir,"Useful_Functions.r", sep=""))
+source(paste(main_dir,"Generate_Behavioral_Criteria.r", sep=""))
 
 
 # Load models
-load("Spain_scorecard\\rdata\\pre_score_model.rdata")
+load("rdata\\pre_score_model.rdata")
 
 # temp_df<-expand.grid(1,c(18,40,60,NA),c(24,120,NA),c(1200,2000,NA),c("M","F",NA))
 # names(temp_df)<-c("request_id","age","work_experience","salary","gender")

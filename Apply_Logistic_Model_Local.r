@@ -48,20 +48,20 @@ setwd(main_dir)
 
 
 # Load other r files
-source(paste(main_dir,"Spain_scorecard\\Additional_Restrictions.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Create_Bins.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Cutoffs.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Generate_Scoring_Table.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Join_Bank_Report_Application.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Read_Bank_Aggs.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\SQL_Queries.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Useful_Functions.r", sep=""))
-source(paste(main_dir,"Spain_scorecard\\Generate_Behavioral_Criteria.r", sep=""))
+source(paste(main_dir,"Additional_Restrictions.r", sep=""))
+source(paste(main_dir,"Create_Bins.r", sep=""))
+source(paste(main_dir,"Cutoffs.r", sep=""))
+source(paste(main_dir,"Generate_Scoring_Table.r", sep=""))
+source(paste(main_dir,"Join_Bank_Report_Application.r", sep=""))
+source(paste(main_dir,"Read_Bank_Aggs.r", sep=""))
+source(paste(main_dir,"SQL_Queries.r", sep=""))
+source(paste(main_dir,"Useful_Functions.r", sep=""))
+source(paste(main_dir,"Generate_Behavioral_Criteria.r", sep=""))
 
 
 # Load predefined libraries
-load("Spain_scorecard\\rdata\\first_application_model.rdata")
-load("Spain_scorecard\\rdata\\beh_application_model.rdata")
+load("rdata\\first_application_model.rdata")
+load("rdata\\beh_application_model.rdata")
 
 
 ####################################
@@ -69,8 +69,7 @@ load("Spain_scorecard\\rdata\\beh_application_model.rdata")
 ####################################
 
 # Read credits applications
-all_df <- suppressWarnings(dbFetch(dbSendQuery(con, 
-                                    gen_app_sql_query(db_name,loan_id))))
+all_df <- gen_query(con,gen_app_sql_query(db_name,loan_id))
 all_df$created_at<-force_tz(as.POSIXct(all_df$created_at),tz="Europe/Madrid")
 
 # Apply some checks to main credit dataframe
@@ -82,8 +81,7 @@ if(nrow(all_df)>1){
 }
 
 # Read product's periods and amounts
-products  <- suppressWarnings(fetch(dbSendQuery(con, 
-                             gen_products_query(db_name,all_df)), n=-1))
+products <- gen_query(con,gen_products_query(db_name,all_df))
 
 
 # Get closets to product amount and installments 
@@ -94,8 +92,7 @@ all_df$amount <- products$amount[
 
 
 # Check all credits of client
-all_credits <- suppressWarnings(dbFetch(dbSendQuery(con, 
-                                gen_all_credits_query(db_name,all_df$client_id)), n=-1))
+all_credits <- gen_query(con,gen_all_credits_query(db_name,all_df$client_id))
 if(nrow(all_credits)>0){
   all_credits <- all_credits[which(all_credits$loan_id==loan_id | 
                                      (!is.na(all_credits$activated_at) & 
@@ -118,10 +115,9 @@ if(flag_beh==1){
 
 
 # Read Unnax bank aggregations report
-
 #dbSendQuery(con,"SET sort_buffer_size=16*1024*1024;")
-all_bank_reports<-suppressWarnings(fetch(dbSendQuery(con, 
-                        gen_bank_report_query(db_name,all_df$client_id)), n=-1))
+all_bank_reports <- gen_query(con,gen_bank_report_query(db_name,
+  all_df$client_id))
 bank_report <- bank_criteria_JSON_reader(all_bank_reports)
 
 
@@ -147,8 +143,7 @@ all_df<-suppressWarnings(application_wtih_aggs_data(all_df,bank_report))
 # behavioral criteria
 if(flag_beh==1){
   prev_loan_id<-select_last_credit(all_id,loan_id)
-  prev_df<-suppressWarnings(fetch(dbSendQuery(con,
-                              gen_prev_loan_df(db_name,prev_loan_id)),n=-1))
+  prev_df <- gen_query(con,gen_prev_loan_df(db_name,prev_loan_id))
   prev_df<-gen_revolve_data(prev_df)
   all_df<-gen_behavioral_criteria(all_df,all_id,prev_df)
 } else {
@@ -177,9 +172,7 @@ scoring_df<-gen_score_app(all_df,scoring_df,flag_beh)
 ######################################
 
 # Generate equifax report
-equifax_report<-suppressWarnings(fetch(dbSendQuery(con, 
-                            gen_equifax_report(db_name,all_df$client_id)), n=-1))
-
+equifax_report <- gen_query(con,gen_equifax_report(db_name,all_df$client_id))
 all_df<-merge_equifax_report(all_df,equifax_report)
 
 
