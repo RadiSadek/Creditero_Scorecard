@@ -152,7 +152,8 @@ create_bins_beh <- function(bank_aggregations_filtered){
 create_bins <- function(bank_aggregations_filtered,flag_beh){
   if(flag_beh==0){
     df<-bank_aggregations_filtered
-      if(!is.na(bank_aggregations_filtered)){
+      if(length(bank_aggregations_filtered[!is.na(
+        bank_aggregations_filtered)])>0){
       empty_fields<-setdiff(first_application_model$var.names,names(df))
       empty_fields<-setdiff(empty_fields,c("has_prev_apps","immigrant_flag","age",
                                            "gender","education","marital_status",

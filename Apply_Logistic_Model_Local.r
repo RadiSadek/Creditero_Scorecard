@@ -80,6 +80,7 @@ if(nrow(all_df)>1){
   all_df <- all_df[!duplicated(all_df$application_id),]
 }
 
+
 # Read product's periods and amounts
 products <- gen_query(con,gen_products_query(db_name,all_df))
 
@@ -115,7 +116,6 @@ if(flag_beh==1){
 
 
 # Read Unnax bank aggregations report
-#dbSendQuery(con,"SET sort_buffer_size=16*1024*1024;")
 all_bank_reports <- gen_query(con,gen_bank_report_query(db_name,
   all_df$client_id))
 bank_report <- bank_criteria_JSON_reader(all_bank_reports)
@@ -144,7 +144,7 @@ all_df<-suppressWarnings(application_wtih_aggs_data(all_df,bank_report))
 if(flag_beh==1){
   prev_loan_id<-select_last_credit(all_id,loan_id)
   prev_df <- gen_query(con,gen_prev_loan_df(db_name,prev_loan_id))
-  prev_df<-gen_revolve_data(prev_df)
+  prev_df <- gen_revolve_data(prev_df)
   all_df<-gen_behavioral_criteria(all_df,all_id,prev_df)
 } else {
   all_df<-gen_app_behavior(all_df)

@@ -106,11 +106,9 @@ load(rdata)
 flag_beh<-0
 if(type=="client"){
   # prev credits
-  all_apps <- suppressWarnings(dbFetch(dbSendQuery(con, 
-                        gen_all_credits_query(db_name,client_id)), n=-1))
+  all_apps <- gen_query(con,gen_all_credits_query(db_name,client_id))
   
   loan_id<-max(all_apps$loan_id)
-  
   
   all_credits <- all_apps[which(all_apps$status %in% c(8,9,13,16,17)),]
   
@@ -118,41 +116,37 @@ if(type=="client"){
   flag_beh <- ifelse(nrow(all_credits[all_credits$loan_id!=loan_id,])>0,1,0)
 }
 # Read pre-score raw data and compute pre-score
-fetch_df<-dbSendQuery(con,gen_pre_score_raw_sql_query(db_name,id,type))
-all_df <- suppressWarnings(dbFetch(fetch_df, n=-1))
+all_df <- gen_query(con,gen_pre_score_raw_sql_query(db_name,id,type))
 dbClearResult(res = fetch_df)
 
 if(type=="affiliate"){
-  all_df<-unpack_raw_covariates_prescore(all_df)
+  all_df <- unpack_raw_covariates_prescore(all_df)
 }
 
-all_df<-gen_pre_score_criteria(all_df,type)
-
-priority_df<-gen_client_prescore(all_df,cu_pre_score,prescore_model,type)
+all_df <- gen_pre_score_criteria(all_df,type)
+priority_df <- gen_client_prescore(all_df,cu_pre_score,prescore_model,type)
 
 ### fetch beahivour history if client has previous apps
 if(type=="client"){
+  
   # fetch old prescore
-  all_pre_scores<-suppressWarnings(dbFetch(dbSendQuery(con,
-              gen_old_pre_scores_query(db_name,client_id)), n=-1))
-
+  gen_query(con,gen_old_pre_scores_query(db_name,client_id))
 
   # fetch last score
-  all_scores <- suppressWarnings(dbFetch(dbSendQuery(con,
-               gen_old_scores_query(db_name,all_apps$loan_id[which(
-                                      all_apps$loan_id<loan_id)])), n=-1))
-  all_scores<-all_scores[!duplicated(all_scores$loan_id),]
+  all_scores <- gen_query(con, gen_old_scores_query(db_name,
+    all_apps$loan_id[which(all_apps$loan_id<loan_id)]))
+  all_scores <- all_scores[!duplicated(all_scores$loan_id),]
 
   # last prescore if it exists
-  loan_priority<-gen_last_pre_score(all_pre_scores,all_scores,client_id)
+  loan_priority <- gen_last_pre_score(all_pre_scores,all_scores,client_id)
   if(nrow(loan_priority)>0){
-    priority_df<-loan_priority
+    priority_df <- loan_priority
   }
 }
 
 # finalize dataframe
 priority_df$priority<-ifelse(priority_df$priority=="Bad","Indeterminate",
-                                                          priority_df$priority)
+                             priority_df$priority)
 
 ### write output sql data
 if(flag_beh==0&nrow(priority_df)>0){

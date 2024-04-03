@@ -104,8 +104,7 @@ load(rdata2)
 ####################################
 
 # Read credits applications
-all_df <- suppressWarnings(dbFetch(dbSendQuery(con, 
-                              gen_app_sql_query(db_name,loan_id)), n=-1))
+all_df <- gen_query(con,gen_app_sql_query(db_name,loan_id))
 all_df$created_at<-force_tz(as.POSIXct(all_df$created_at,tz="Europe/Madrid"))
 
 # Apply some checks to main credit dataframe
@@ -116,9 +115,9 @@ if(nrow(all_df)>1){
   all_df <- all_df[!duplicated(all_df$application_id),]
 }
 
+
 # Read product's periods and amounts
-products  <- suppressWarnings(dbFetch(dbSendQuery(con, 
-                               gen_products_query(db_name,all_df)), n=-1))
+products <- gen_query(con,gen_products_query(db_name,all_df))
 
 
 # Get closets to product amount and installments 
@@ -129,8 +128,7 @@ all_df$amount <- products$amount[
 
 
 # Check all credits of client
-all_credits <- suppressWarnings(dbFetch(dbSendQuery(con, 
-                        gen_all_credits_query(db_name,all_df$client_id)), n=-1))
+all_credits <- gen_query(con,gen_all_credits_query(db_name,all_df$client_id))
 if(nrow(all_credits)>0){
   all_credits <- all_credits[which(all_credits$loan_id==loan_id | 
                                 (!is.na(all_credits$activated_at) & 
@@ -153,10 +151,8 @@ if(flag_beh==1){
 
 
 # Read Unnax bank aggregations report
-
-#dbSendQuery(con,"SET sort_buffer_size=16*1024*1024;")
-all_bank_reports<-suppressWarnings(dbFetch(dbSendQuery(con, 
-                      gen_bank_report_query(db_name,all_df$client_id)), n=-1))
+all_bank_reports <- gen_query(con,gen_bank_report_query(db_name,
+  all_df$client_id))
 bank_report <- bank_criteria_JSON_reader(all_bank_reports)
 
 
@@ -182,9 +178,8 @@ all_df<-suppressWarnings(application_wtih_aggs_data(all_df,bank_report))
 # behavioral criteria
 if(flag_beh==1){
   prev_loan_id<-select_last_credit(all_id,loan_id)
-  prev_df<-suppressWarnings(dbFetch(dbSendQuery(con,
-                          gen_prev_loan_df(db_name,prev_loan_id)),n=-1))
-  prev_df<-gen_revolve_data(prev_df)
+  prev_df <- gen_query(con,gen_prev_loan_df(db_name,prev_loan_id))
+  prev_df <- gen_revolve_data(prev_df)
   all_df<-gen_behavioral_criteria(all_df,all_id,prev_df)
 } else {
   all_df<-gen_app_behavior(all_df)
@@ -212,9 +207,7 @@ scoring_df<-gen_score_app(all_df,scoring_df,flag_beh)
 ######################################
 
 # Generate equifax report
-equifax_report<-suppressWarnings(dbFetch(dbSendQuery(con, 
-                          gen_equifax_report(db_name,all_df$client_id)), n=-1))
-
+equifax_report <- gen_query(con,gen_equifax_report(db_name,all_df$client_id))
 all_df<-merge_equifax_report(all_df,equifax_report)
 
 
