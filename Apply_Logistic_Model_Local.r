@@ -55,7 +55,7 @@ source(paste(main_dir,"Generate_Scoring_Table.r", sep=""))
 source(paste(main_dir,"Join_Bank_Report_Application.r", sep=""))
 source(paste(main_dir,"Read_Bank_Aggs.r", sep=""))
 source(paste(main_dir,"SQL_Queries.r", sep=""))
-source(paste(main_dir,"Useful_Functions.r", sep=""))
+source(paste(main_dir,"Useful_Functions_Local.r", sep=""))
 source(paste(main_dir,"Generate_Behavioral_Criteria.r", sep=""))
 
 
