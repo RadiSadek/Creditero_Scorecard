@@ -39,7 +39,7 @@ main_dir <- paste("\\\\192.168.2.30\\Analyses\\Shared\\Scorecards\\Spain\\",
 # Read argument of ID
 args <- commandArgs(trailingOnly = TRUE)
 loan_id <- as.numeric(args[1])
-loan_id <- 820815
+loan_id <- 950308
 product_id <- 1
 
 

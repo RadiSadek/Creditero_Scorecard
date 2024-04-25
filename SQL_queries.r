@@ -35,7 +35,9 @@ gen_app_sql_query <- function(db_name,application_id){
     ON ",db_name,".settlements.id=",db_name,".addresses.settlement_id
     LEFT JOIN ",db_name,".loan_referrals
     ON ",db_name,".loan_referrals.loan_id=",db_name,".loans.id
-    WHERE loans.id = ",application_id,";", sep=""
+    WHERE ",db_name,".addresses.type = 2 AND 
+	",db_name,".addresses.addressable_type = 'App\\\\Models\\\\Clients\\\\Client'
+	AND loans.id = ",application_id,";", sep=""
   )
   return(applications_sql_query)
 }

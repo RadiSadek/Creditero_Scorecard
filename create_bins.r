@@ -77,7 +77,8 @@ create_bins_first_app<-function(bank_aggregations_filtered){
 }
 ############# consecutive credit application ###############
 create_bins_beh <- function(bank_aggregations_filtered){
-  if(!is.na(bank_aggregations_filtered)){
+  if(length(bank_aggregations_filtered[!is.na(
+    bank_aggregations_filtered)])>0){
     df <- bank_aggregations_filtered
     df$FAST_LOANS_OUTCOME<-
       ifelse(is.na(df$`FAST LOANS_outcome`),"0-1000",
