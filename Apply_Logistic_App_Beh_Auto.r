@@ -198,7 +198,7 @@ if(!("pd" %in% names(scoring_df))){
 }
 
 #calculate PD, group and colour
-scoring_df<-gen_score_app(all_df,scoring_df,flag_beh)
+scoring_df<-suppressMessages(gen_score_app(all_df,scoring_df,flag_beh))
 
 
 
@@ -224,7 +224,7 @@ all_df<-suppressWarnings(gen_debt_restructuring_flag(all_df,
                                       all_df$aggregations_id,all_bank_reports))
 all_df<-gen_equifax_flag(all_df)
 all_df<-gen_affiliate_flag(all_df)
-all_df$flag_bankruptcy <- sapply(all_df$dni, gen_bankruptcy_http_request)
+# all_df$flag_bankruptcy <- sapply(all_df$dni, gen_bankruptcy_http_request)
 
 scoring_df<-merge(scoring_df,all_df[c("loan_id","age_flag", "transactions_flag",
               "debt_restructuring_flag","no_aggregations_flag","equifax_flag",

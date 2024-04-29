@@ -39,7 +39,8 @@ main_dir <- paste("\\\\192.168.2.30\\Analyses\\Shared\\Scorecards\\Spain\\",
 # Read argument of ID
 args <- commandArgs(trailingOnly = TRUE)
 loan_id <- as.numeric(args[1])
-loan_id <- 950308
+loan_id <- 951287
+
 product_id <- 1
 
 
@@ -163,10 +164,10 @@ if(!("pd" %in% names(scoring_df))){
 }
 
 #calculate PD, group and colour
-scoring_df<-gen_score_app(all_df,scoring_df,flag_beh)
+scoring_df<- suppressMessages(gen_score_app(all_df,scoring_df,flag_beh))
 
 
-
+# stop("Break: line 170")
 ######################################
 ### Generate final output settings ###
 ######################################
