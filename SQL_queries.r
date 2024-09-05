@@ -23,7 +23,8 @@ gen_app_sql_query <- function(db_name,application_id){
     ",db_name,".client_additional_data.salary,
     ",db_name,".client_additional_data.work_experience,
     ",db_name,".settlements.zip_code,
-    ",db_name,".loan_referrals.source
+    ",db_name,".loan_referrals.source,
+    ",db_name,".addresses.type as address_type
     FROM ",db_name,".loans
     LEFT JOIN ",db_name,".clients
     ON ",db_name,".loans.client_id = ",db_name,".clients.id
@@ -35,7 +36,7 @@ gen_app_sql_query <- function(db_name,application_id){
     ON ",db_name,".settlements.id=",db_name,".addresses.settlement_id
     LEFT JOIN ",db_name,".loan_referrals
     ON ",db_name,".loan_referrals.loan_id=",db_name,".loans.id
-    WHERE ",db_name,".addresses.type = 2 AND 
+    WHERE
 	",db_name,".addresses.addressable_type = 'App\\\\Models\\\\Clients\\\\Client'
 	AND loans.id = ",application_id,";", sep=""
   )

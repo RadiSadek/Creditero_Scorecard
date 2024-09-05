@@ -105,8 +105,8 @@ load(rdata2)
 
 # Read credits applications
 all_df <- gen_query(con,gen_app_sql_query(db_name,loan_id))
+all_df <- get_correct_zip(all_df)
 all_df$created_at<-force_tz(as.POSIXct(all_df$created_at,tz="Europe/Madrid"))
-
 # Apply some checks to main credit dataframe
 if(!is.na(product_id)){
   all_df$product_id <- product_id
@@ -118,7 +118,6 @@ if(nrow(all_df)>1){
 
 # Read product's periods and amounts
 products <- gen_query(con,gen_products_query(db_name,all_df))
-
 
 # Get closets to product amount and installments 
 all_df$installments <- products$installments[
@@ -198,8 +197,8 @@ if(!("pd" %in% names(scoring_df))){
 }
 
 #calculate PD, group and colour
-scoring_df<-suppressMessages(gen_score_app(all_df,scoring_df,flag_beh))
-
+scoring_df<-suppressMessages(gen_score_app(all_df,scoring_df,flag_beh,
+      beh_application_model,first_application_model))
 
 
 ######################################
@@ -240,7 +239,6 @@ scoring_df <- policy_rules(scoring_df,flag_beh,max_amount)
 # Create column for table display
 scoring_df <- gen_final_table_display(scoring_df,all_df$amount)
 
-
 # Update table credits applications scoring
 write_sql_query <- paste("DELETE FROM ",db_name,".loan_scoring 
       WHERE loan_id=",loan_id,";", sep="")
@@ -255,7 +253,6 @@ if(any(scoring_df$score!="NULL")){
     row.names = F, append = T))
 }
 #suppressMessages(dbSendQuery(con,update_counter(db_name,loan_id)))
-
 
 #######
 # END #

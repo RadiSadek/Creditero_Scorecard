@@ -231,7 +231,8 @@ bank_criteria_JSON_reader<-function(all_bank_reports){
 ########### filter bank aggregations ############
 
 take_relevant_fields<-function(bank_aggregations_unfiltered,flag_beh){
-  if(length(bank_report[!is.na(bank_report)])>0){
+  if(length(bank_aggregations_unfiltered[!is.na(
+    bank_aggregations_unfiltered)])>0){
     aggregated_criteria<-
         c("current_balance","avg_balance","transactions","above_threshold","aggs_birth_date")
     bank_criteria<-c("FAST LOANS_outcome","OTHER TRANSFERS_income",

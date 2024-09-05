@@ -3,7 +3,8 @@
 ###### Functions to apply logistic regression on application Creditero ######
 #############################################################################
 
-gen_score_app <- function(binned_df,scoring_df,flag_repeat){
+gen_score_app <- function(binned_df,scoring_df,flag_repeat,
+    beh_application_model,first_application_model){
   if(binned_df$no_aggregations_flag<2){
     if(flag_repeat==1){
       #model <- repeated_customers_model

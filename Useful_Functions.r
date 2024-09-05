@@ -222,3 +222,34 @@ gen_bankruptcy_http_request <- function(dni) {
     return(0)
   })
 }
+
+# Function to make string for DB update of PO terminated (delete offer)
+gen_string_po_terminated <- function(input){
+  string_sql_update <- input$id[1]
+  if(nrow(input)>1){
+    for(i in 2:nrow(input)){
+      string_sql_update <- paste(string_sql_update,input$id[i],
+                                 sep=",")}}
+  return(paste("(",string_sql_update,")",sep=""))
+}
+
+# Define sql string query for writing in DB for PO terminated
+gen_sql_string_po_terminated <- function(input,inc){
+  return(paste("(",input$id[inc],",",
+    input$client_id[inc],",",input$credit_amount[inc],",",
+    input$credit_amount_updated[inc],",",input$installment_amount[inc],",",
+    input$installment_amount_updated[inc],",",input$office_id[inc],",",
+    input$product_id[inc],",'",input$created_at[inc],"',",input$updated_at[inc],
+    ",",input$deleted_at[inc],")",sep=""))
+}
+
+# Get correct address
+get_correct_zip <- function(input){
+  app_sql_data <- input[input$address_type %in% c(1, 2), ]
+  app_sql_data$address_type <- as.numeric(as.character(app_sql_data$address_type))
+  app_sql_data <- app_sql_data[order(app_sql_data$loan_id, 
+                                     -app_sql_data$address_type), ]
+  app_sql_data <- app_sql_data[!duplicated(app_sql_data$loan_id), ]
+  app_sql_data <- app_sql_data[ , !(names(app_sql_data) %in% "address_type")]
+  return(app_sql_data)
+}

@@ -1,4 +1,4 @@
-start_time<-Sys.time()
+
 
 ################################################################################
 #               Joint script for Application and Behavioral scoring            #
@@ -39,8 +39,7 @@ main_dir <- paste("\\\\192.168.2.30\\Analyses\\Shared\\Scorecards\\Spain\\",
 # Read argument of ID
 args <- commandArgs(trailingOnly = TRUE)
 loan_id <- as.numeric(args[1])
-loan_id <- 951287
-
+loan_id <- 870885
 product_id <- 1
 
 
@@ -64,13 +63,13 @@ source(paste(main_dir,"Generate_Behavioral_Criteria.r", sep=""))
 load("rdata\\first_application_model.rdata")
 load("rdata\\beh_application_model.rdata")
 
-
 ####################################
 ### Read database and build data ###
 ####################################
 
 # Read credits applications
 all_df <- gen_query(con,gen_app_sql_query(db_name,loan_id))
+all_df <- get_correct_zip(all_df)
 all_df$created_at<-force_tz(as.POSIXct(all_df$created_at),tz="Europe/Madrid")
 
 # Apply some checks to main credit dataframe
@@ -164,7 +163,9 @@ if(!("pd" %in% names(scoring_df))){
 }
 
 #calculate PD, group and colour
-scoring_df<- suppressMessages(gen_score_app(all_df,scoring_df,flag_beh))
+scoring_df<-suppressMessages(gen_score_app(all_df,scoring_df,flag_beh,
+   beh_application_model,first_application_model))
+
 
 
 # stop("Break: line 170")
@@ -203,7 +204,6 @@ scoring_df <- policy_rules(scoring_df,flag_beh,max_amount)
 # Create column for table display
 scoring_df <- gen_final_table_display(scoring_df,all_df$amount)
 
-
 # Create output dataframe
 final <- as.data.frame(cbind(scoring_df$loan_id[1],
       scoring_df$amount[scoring_df$amount == unique(scoring_df$amount)[
@@ -235,6 +235,7 @@ final$pd <- scoring_df$pd[scoring_df$amount== unique(scoring_df$amount)
 final$flag_beh <- flag_beh
 final<-merge(final,all_df[,c(which(names(all_df)=="loan_id"),
                       which(!names(all_df)%in%names(final)))],by="loan_id")
+
 # Read and write
 final_exists <- readxl::read_xlsx(paste(main_dir,
                            "Monitoring\\Files\\Scored_Credits.xlsx", sep=""))
@@ -244,9 +245,6 @@ final <- rbind(final,final_exists)
 final <- final[!duplicated(final$loan_id),] 
 
 final$wrong_age<-ifelse(final$birth_date>"2022-01-01",1,0)
-
-end_time<-Sys.time()
-
 writexl::write_xlsx(final, 
             paste(main_dir,"Monitoring\\Files\\Scored_Credits.xlsx", sep=""))
 
