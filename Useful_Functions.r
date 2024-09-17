@@ -248,8 +248,25 @@ get_correct_zip <- function(input){
   app_sql_data <- input[input$address_type %in% c(1, 2), ]
   app_sql_data$address_type <- as.numeric(as.character(app_sql_data$address_type))
   app_sql_data <- app_sql_data[order(app_sql_data$loan_id, 
-                                     -app_sql_data$address_type), ]
+      -app_sql_data$address_type), ]
   app_sql_data <- app_sql_data[!duplicated(app_sql_data$loan_id), ]
   app_sql_data <- app_sql_data[ , !(names(app_sql_data) %in% "address_type")]
   return(app_sql_data)
+}
+
+# Correct for Prior Approval offers
+gen_correction_po_fct <- function(con,db_name,all_df,scoring_df){
+  
+  # Check if client has active offer
+  po <- gen_query(con,gen_po_terminated_query(db_name,all_df$client_id))
+  po <- subset(po,is.na(po$deleted_at))
+  
+  if(nrow(po)>0){
+    po <- po[rev(order(po$created_at)),]
+    po <- po[!duplicated(po$client_id),]
+    scoring_df$color <- ifelse(scoring_df$amount<=po$credit_amount & 
+       scoring_df$color==1,6,1)
+  }
+
+  return(scoring_df)
 }

@@ -221,8 +221,9 @@ update_old_client_pre_score_query <- function(db_name,output_df){
   }
 }
 
-# gen_po_terminated_query<-function(db_name,client_id){
-#   return(paste("SELECT *
-#     FROM ",db_name,".clients_prior_approval_applications
-#     WHERE clients_prior_approval_applications.client_id=",client_id,";",sep=""))
-# }
+gen_po_terminated_query <- function(db_name,client_id){
+   return(paste("SELECT *
+   FROM ",db_name,".clients_prior_approval_applications
+   WHERE clients_prior_approval_applications.client_id=",client_id,";",sep=""))
+}
+

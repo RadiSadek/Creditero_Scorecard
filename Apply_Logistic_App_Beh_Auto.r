@@ -229,12 +229,14 @@ scoring_df<-merge(scoring_df,all_df[c("loan_id","age_flag", "transactions_flag",
               "debt_restructuring_flag","no_aggregations_flag","equifax_flag",
               "affiliate_flag")],
                   by.x = "application_id", by.y = "loan_id")
+
 # apply policy rules
 scoring_df <- policy_rules(scoring_df,flag_beh,max_amount)
 
-# superimpose offer
-# scoring_df <- gen_correction_po_fct(con,db_name, scoring_df, all_df)
-
+# Correct for prior approval offers
+if(flag_beh==1){
+  scoring_df <- gen_correction_po_fct(con,db_name,all_df,scoring_df)
+}
 
 # Create column for table display
 scoring_df <- gen_final_table_display(scoring_df,all_df$amount)
