@@ -265,7 +265,7 @@ gen_correction_po_fct <- function(con,db_name,all_df,scoring_df){
     po <- po[rev(order(po$created_at)),]
     po <- po[!duplicated(po$client_id),]
     scoring_df$color <- ifelse(scoring_df$amount<=po$credit_amount & 
-       scoring_df$color==1,6,1)
+       scoring_df$color==1,6,scoring_df$color)
   }
   
   return(scoring_df)
