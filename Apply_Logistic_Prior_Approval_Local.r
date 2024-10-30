@@ -204,6 +204,7 @@ po_get_special_query <- paste(
   WHERE deleted_at IS NULL",sep="")
 po_special <- suppressWarnings(fetch(dbSendQuery(con,po_get_special_query), 
     n=-1))
+po_active <- po_special
 po_special <- po_special[po_special$client_id %in% special$id,]
 
 if(nrow(po_special)>0){
@@ -215,6 +216,22 @@ if(nrow(po_special)>0){
   suppressMessages(suppressWarnings(dbSendQuery(con,po_special_query)))
 }
 
+
+################################################################
+### Remove clients who have a active credit and active offer ###
+################################################################
+
+all_actives <- subset(all_credits,is.na(all_credits$finished_at))
+po_active_todelete <- po_active[po_active$client_id %in% all_actives$client_id,]
+
+if(nrow(po_active_todelete)>0){
+  po_special_query <- paste("UPDATE ",db_name,
+    ".clients_prior_approval_applications SET updated_at = '",
+    substring(Sys.time(),1,19),"', deleted_at = '",
+    paste(substring(Sys.time(),1,10),"04:00:00",sep=),"'
+    WHERE id IN",gen_string_po_terminated(po_active_todelete), sep="")
+  suppressMessages(suppressWarnings(dbSendQuery(con,po_special_query)))
+}
 
 
 ###########
