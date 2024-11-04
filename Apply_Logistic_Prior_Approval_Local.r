@@ -199,7 +199,7 @@ special <- suppressWarnings(fetch(dbSendQuery(con,get_special_sql), n=-1))
 
 # Remove special cases if has offer
 po_get_special_query <- paste(
-  "SELECT id, client_id
+  "SELECT id, client_id, created_at
   FROM ",db_name,".clients_prior_approval_applications
   WHERE deleted_at IS NULL",sep="")
 po_special <- suppressWarnings(fetch(dbSendQuery(con,po_get_special_query), 
@@ -232,6 +232,27 @@ if(nrow(po_active_todelete)>0){
     WHERE id IN",gen_string_po_terminated(po_active_todelete), sep="")
   suppressMessages(suppressWarnings(dbSendQuery(con,po_special_query)))
 }
+
+
+################################
+### Remove duplicated offers ###
+################################
+
+po_active_dups <- po_active
+po_active_dups <- po_active_dups[rev(order(po_active_dups$created_at)),]
+po_active_dups <- po_active_dups[order(po_active_dups$client_id),]
+po_active_dups <- po_active_dups[duplicated(po_active_dups$client_id),]
+
+if(nrow(po_active_dups)>0){
+  po_special_query <- paste("UPDATE ",db_name,
+    ".clients_prior_approval_applications SET updated_at = '",
+    substring(Sys.time(),1,19),"', deleted_at = '",
+    paste(substring(Sys.time(),1,10),"04:00:00",sep=),"'
+    WHERE id IN",gen_string_po_terminated(po_active_dups), sep="")
+  suppressMessages(suppressWarnings(dbSendQuery(con,po_special_query)))
+}
+
+
 
 
 ###########
