@@ -197,6 +197,12 @@ SELECT id FROM ",db_name,".clients
 WHERE dead_at IS NOT NULL",sep="")
 special <- suppressWarnings(fetch(dbSendQuery(con,get_special_sql), n=-1))
 
+# Read blacklisted
+get_special_sql <- paste("
+SELECT a.dni, b.id FROM ",db_name,".dni_blacklist a
+LEFT JOIN clients b ON a.dni = b.dni",sep="")
+special2 <- suppressWarnings(fetch(dbSendQuery(con,get_special_sql), n=-1))
+
 # Remove special cases if has offer
 po_get_special_query <- paste(
   "SELECT id, client_id, created_at
@@ -205,7 +211,10 @@ po_get_special_query <- paste(
 po_special <- suppressWarnings(fetch(dbSendQuery(con,po_get_special_query), 
     n=-1))
 po_active <- po_special
-po_special <- po_special[po_special$client_id %in% special$id,]
+po_special <- rbind(
+  po_special[po_special$client_id %in% special$id,],
+  po_special[po_special$client_id %in% special2$id,])
+po_special <- po_special[!duplicated(po_special$id),]
 
 if(nrow(po_special)>0){
   po_special_query <- paste("UPDATE ",db_name,
